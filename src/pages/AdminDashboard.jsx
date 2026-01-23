@@ -17,8 +17,15 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isAdminLoggedIn()) navigate("/admin-login");
+    const timer = setTimeout(() => {
+      if (!isAdminLoggedIn()) {
+        navigate("/admin-login", { replace: true });
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, [navigate]);
+
 
   useEffect(() => {
     fetch(SHEET_JSON_URL)

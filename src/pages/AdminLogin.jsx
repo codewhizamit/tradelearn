@@ -12,10 +12,9 @@ export default function AdminLogin() {
     e.preventDefault();
 
     const success = adminLogin(email, password);
-
-    if (success) {
-      navigate("/admin-dashboard");
-    } else {
+  if (success) {
+    navigate("/admin-dashboard", { replace: true });
+  } else {
       setError("Invalid admin email or password");
     }
   };
