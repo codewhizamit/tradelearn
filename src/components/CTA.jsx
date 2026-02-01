@@ -20,7 +20,7 @@ export default function CTA() {
 
           {/* Badge */}
           <span className="inline-block mb-4 rounded-full bg-green-500/10 px-4 py-1 text-xs font-semibold text-green-400">
-            Limited Seats Available
+            Early Access • Limited Time
           </span>
 
           {/* Heading */}
@@ -31,9 +31,11 @@ export default function CTA() {
 
           {/* Text */}
           <p className="mt-4 text-gray-400 max-w-2xl mx-auto text-sm md:text-base">
-            Join our mentor-led trading bootcamp and learn how to trade
-            confidently with real market guidance, discipline, and
-            risk management.
+            Join our mentor-led trading bootcamp and get{" "}
+            <span className="text-white">early access</span> to professional trading education.
+            For a limited time, this program is being offered to selected participants
+            to build strong trading foundations with real market guidance, discipline,
+            and risk management.
           </p>
 
           {/* Button */}
@@ -54,9 +56,14 @@ export default function CTA() {
                 active:scale-[0.97]
               "
             >
-              <span className="relative z-10">Register Now</span>
+              <span className="relative z-10">Apply for Early Access</span>
             </button>
           </div>
+
+          {/* Subtle trust line */}
+          <p className="mt-4 text-xs text-gray-500">
+            No hype. No profit promises. Built for serious learners only.
+          </p>
 
         </div>
 

@@ -9,22 +9,22 @@ export default function WhyChooseUs() {
   const features = [
     {
       title: "Live Market Learning",
-      desc: "Trade with real-time market data and live mentor sessions.",
+      desc: "Learn where it matters most — in live markets with real-time mentor guidance.",
       icon: TrendingUp,
     },
     {
       title: "Beginner Friendly",
-      desc: "Step-by-step guidance from basics to advanced strategies.",
+      desc: "Structured, step-by-step learning that builds confidence from day one.",
       icon: BookOpen,
     },
     {
       title: "Risk Management First",
-      desc: "Learn to protect capital before chasing profits.",
+      desc: "Learn disciplined risk control to protect capital before profits.",
       icon: ShieldCheck,
     },
     {
       title: "Practical Strategies",
-      desc: "Real-world strategies tested in live market conditions.",
+      desc: "No theory—only practical strategies used in live markets.",
       icon: BarChart3,
     },
   ];
@@ -39,7 +39,7 @@ export default function WhyChooseUs() {
             Why <span className="text-green-500">Choose Us</span>
           </h2>
           <p className="mt-4 text-gray-400 text-sm md:text-base">
-            Professional trading education designed for your success
+            A clear, structured approach to help you trade confidently in real market conditions.
           </p>
         </div>
 

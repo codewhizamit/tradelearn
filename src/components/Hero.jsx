@@ -6,7 +6,7 @@ export default function Hero() {
           
           {/* Heading */}
           <h1 className="text-3xl md:text-5xl font-bold leading-tight">
-            Learn Stock Market Trading <br />
+            Learn Options Trading <br />
             <span className="text-green-500">
               With Real Market Guidance
             </span>
@@ -14,8 +14,8 @@ export default function Hero() {
 
           {/* Subtitle */}
           <p className="text-gray-400 max-w-xl text-sm md:text-base">
-            Mentor-led strategies, live market insights, and structured
-            trading bootcamps designed for beginners to advanced traders.
+            Learn options trading with expert mentorship, live market execution,
+            and proven strategies built for real traders.
           </p>
 
           {/* Buttons (WORKING) */}

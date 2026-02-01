@@ -1,5 +1,4 @@
 import {
-  Calendar,
   Video,
   TrendingUp,
   Users,
@@ -9,26 +8,20 @@ export default function BootcampHighlights() {
   const highlights = [
     {
       step: "01",
-      title: "8-Week Program",
-      desc: "Structured learning from fundamentals to advanced trading strategies.",
-      icon: Calendar,
-    },
-    {
-      step: "02",
-      title: "Live Sessions",
-      desc: "Interactive live classes with real-time market analysis.",
+      title: "Live Market Sessions",
+      desc: "Trade alongside the mentor with real-time market analysis and execution.",
       icon: Video,
     },
     {
-      step: "03",
-      title: "Market Practice",
-      desc: "Hands-on practice with paper trading and real market examples.",
+      step: "02",
+      title: "Real Market Practice",
+      desc: "Hands-on learning through live charts, expiry-day sessions, and real setups.",
       icon: TrendingUp,
     },
     {
-      step: "04",
-      title: "All Skill Levels",
-      desc: "Perfect for beginners, intermediate, and advanced traders.",
+      step: "03",
+      title: "For Serious Traders",
+      desc: "Designed for beginners and traders seeking discipline, clarity, and control.",
       icon: Users,
     },
   ];
@@ -43,12 +36,12 @@ export default function BootcampHighlights() {
             Bootcamp <span className="text-green-500">Highlights</span>
           </h2>
           <p className="mt-4 text-gray-400 text-sm md:text-base">
-            Comprehensive trading education program
+            A discipline-driven trading program built on real market execution
           </p>
         </div>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {highlights.map((item, index) => {
             const Icon = item.icon;
 

@@ -1,19 +1,26 @@
+import gajendraPhoto from "../assets/gajendra.jpeg";
+import ashutoshPhoto from "../assets/ashutosh.jpg.jpeg";
+import tarunPhoto from "../assets/tarun.jpg.jpeg";
+
 export default function Testimonials() {
   const testimonials = [
     {
-      name: "Rahul Sharma",
-      role: "Beginner Trader",
-      text: "This bootcamp completely changed the way I look at trading. Earlier I was randomly taking trades, but now I understand risk management, discipline, and how professionals think in live markets. The mentor explains everything with real examples, not theory.",
+      name: "Gajendra Singh",
+      role: "Intermediate Trader • Harda, MP",
+      photo: gajendraPhoto,
+      text: "Stockologer has completely changed the way I approach trading. Earlier I used to take random trades, but now I understand the importance of risk management, discipline, and patience. The strategies are practical and actually work in live markets — no hype, no shortcuts.",
     },
     {
-      name: "Ankit Verma",
-      role: "Working Professional",
-      text: "Live market sessions were the biggest value for me. I learned how to plan trades, wait patiently, and avoid overtrading. The strategies are practical and easy to apply even with a full-time job.",
+      name: "Ashutosh Rajput",
+      role: "Options Trader • Rajasthan",
+      photo: ashutoshPhoto,
+      text: "My options trading journey with Stockologer has been truly transformative. Clear strategies, daily market insights, and guided live sessions helped me improve my entries and manage risk better. This is not just a course — it’s a real support system for traders.",
     },
     {
-      name: "Pooja Singh",
-      role: "Intermediate Trader",
-      text: "I stopped chasing fake profits after joining this program. The focus on consistency and capital protection helped me gain confidence. This is not a hype-based course — it is structured and realistic.",
+      name: "Tarun",
+      role: "Beginner Trader • Delhi",
+      photo: tarunPhoto,
+      text: "What I like most about Stockologer is the clarity. Complex strategies are explained in a simple, practical way. Daily guidance, live sessions, and regular trade reviews helped me stay disciplined and consistent. Highly recommended for serious traders.",
     },
   ];
 
@@ -48,14 +55,18 @@ export default function Testimonials() {
             >
               {/* Quote */}
               <p className="text-sm text-gray-300 leading-relaxed mb-6">
-                “{item.text}”
+                {item.text}
               </p>
 
               <div className="border-t border-zinc-800 pt-4 flex items-center gap-4">
                 
-                {/* Photo Placeholder */}
-                <div className="h-12 w-12 rounded-full bg-zinc-800 flex items-center justify-center text-xs text-gray-400">
-                  Photo
+                {/* Student Photo */}
+                <div className="h-12 w-12 rounded-full overflow-hidden bg-zinc-800">
+                  <img
+                    src={item.photo}
+                    alt={item.name}
+                    className="h-full w-full object-cover"
+                  />
                 </div>
 
                 {/* Info */}

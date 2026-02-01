@@ -33,7 +33,7 @@ const Navbar = () => {
               <TrendingUp className="h-5 w-5 text-green-400" />
             </div>
             <span className="text-lg font-semibold text-white">
-              Trade<span className="text-green-400">Learn</span>
+              Stocko<span className="text-green-400">loger</span>
             </span>
           </div>
 
