@@ -18,10 +18,10 @@ export default function Hero() {
             and proven strategies built for real traders.
           </p>
 
-          {/* Buttons (WORKING) */}
+          {/* Buttons */}
           <div className="flex gap-4 mt-4 flex-wrap justify-center">
 
-            {/* Join Bootcamp */}
+            {/* Primary CTA */}
             <button
               onClick={() =>
                 document
@@ -40,16 +40,14 @@ export default function Hero() {
                 active:scale-[0.98]
               "
             >
-              Join Trading Bootcamp
+              Apply for Trading Bootcamp
             </button>
 
-            {/* Know Mentor */}
-            <button
-              onClick={() =>
-                document
-                  .getElementById("mentor")
-                  ?.scrollIntoView({ behavior: "smooth" })
-              }
+            {/* Secondary CTA – WhatsApp */}
+            <a
+              href="https://chat.whatsapp.com/Fevm9RqmN8q0DoN5LK4Oi3?mode=gi_t"
+              target="_blank"
+              rel="noopener noreferrer"
               className="
                 border border-zinc-700
                 px-7 py-3
@@ -62,8 +60,8 @@ export default function Hero() {
                 active:scale-[0.98]
               "
             >
-              Know Your Mentor
-            </button>
+              Join WhatsApp Trading Community
+            </a>
 
           </div>
 
