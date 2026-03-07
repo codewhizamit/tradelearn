@@ -27,6 +27,11 @@ export default function RegistrationForm() {
         }
       );
 
+      // 🔥 Meta Pixel Event (registration tracking)
+      if (window.fbq) {
+        window.fbq("track", "CompleteRegistration");
+      }
+
       setShowSuccess(true);
       setName("");
       setEmail("");
