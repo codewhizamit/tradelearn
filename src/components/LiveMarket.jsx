@@ -281,7 +281,7 @@ export default function LiveMarket() {
       </div>
 
       <style>{`
-        .animate-ticker { animation: ticker 30s linear infinite; }
+        .animate-ticker { animation: ticker 8s linear infinite; }
         @keyframes ticker {
           from { transform: translateX(0); }
           to   { transform: translateX(-50%); }
