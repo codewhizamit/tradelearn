@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 
 const API_KEY = "c1e1d1aca4b0472d838e4b0354996154";
 
@@ -10,27 +10,43 @@ const API_KEY = "c1e1d1aca4b0472d838e4b0354996154";
 // Max 8 symbols per batch request (= 8 credits, fits 8/min limit)
 // ─────────────────────────────────────────────────────────────
 const SYMBOLS = [
-  // US Stocks — real-time on free plan
-  { key: "AAPL",    label: "APPLE",    type: "stock"  },
-  { key: "TSLA",    label: "TESLA",    type: "stock"  },
-  { key: "MSFT",    label: "MICROSOFT",type: "stock"  },
-  { key: "GOOGL",   label: "GOOGLE",   type: "stock"  },
-  { key: "AMZN",    label: "AMAZON",   type: "stock"  },
-  { key: "NVDA",    label: "NVIDIA",   type: "stock"  },
-  // Forex — real-time on free plan
-  { key: "EUR/USD", label: "EUR/USD",  type: "forex"  },
-  { key: "GBP/USD", label: "GBP/USD",  type: "forex"  },
+  // Batch 0
+  [
+    { key: "AAPL", label: "APPLE", type: "stock" },
+    { key: "MSFT", label: "MICROSOFT", type: "stock" },
+    { key: "AMZN", label: "AMAZON", type: "stock" },
+    { key: "NVDA", label: "NVIDIA", type: "stock" },
+    { key: "META", label: "META", type: "stock" },
+    { key: "NFLX", label: "NETFLIX", type: "stock" },
+    { key: "JPM", label: "JPMORGAN", type: "stock" },
+    { key: "V", label: "VISA", type: "stock" },
+  ],
+  // Batch 1
+  [
+    { key: "TSLA", label: "TESLA", type: "stock" },
+    { key: "WMT", label: "WALMART", type: "stock" },
+    { key: "JNJ", label: "JOHNSON", type: "stock" },
+    { key: "GOOGL", label: "GOOGLE", type: "stock" },
+    { key: "EUR/USD", label: "EUR/USD", type: "forex" },
+    { key: "GBP/USD", label: "GBP/USD", type: "forex" },
+    { key: "BTC/USD", label: "BTC/USD", type: "crypto" },
+    { key: "ETH/USD", label: "ETH/USD", type: "crypto" },
+  ]
 ];
 
-// 15 min refresh → 96/day × 8 credits = 768 credits/day (under 800 limit)
-const REFRESH_INTERVAL = 15 * 60 * 1000;
+const FLAT_SYMBOLS = SYMBOLS.flat();
 
-const FALLBACK = SYMBOLS.map((s) => ({
+// 15 min refresh → 96/day × 8 credits = 768 credits/day (under 800 limit)
+// The API is batched to only cost 8 credits per update cycle.
+const REFRESH_INTERVAL = 15 * 60 * 1000;
+const CACHE_KEY = "liveMarketData";
+
+const FALLBACK = FLAT_SYMBOLS.map((s) => ({
   symbol: s.label,
-  price:  "—",
+  price: "—",
   change: "—",
-  up:     true,
-  type:   s.type,
+  up: true,
+  type: s.type,
 }));
 
 function formatPrice(price, type) {
@@ -57,64 +73,155 @@ function parseQuote(quote, label, type) {
 
   return {
     symbol: label,
-    price:  formatPrice(close, type),
+    price: formatPrice(close, type),
     change: `${c >= 0 ? "+" : ""}${p.toFixed(2)}%`,
-    up:     c >= 0,
+    up: c >= 0,
     type,
   };
 }
 
 export default function LiveMarket() {
-  const [marketData, setMarketData]   = useState(FALLBACK);
+  const [marketData, setMarketData] = useState(FALLBACK);
   const [lastUpdated, setLastUpdated] = useState(null);
-  const [status, setStatus]           = useState("loading");
+  const [status, setStatus] = useState("loading");
   const isFetching = useRef(false);
+  const batchIndex = useRef(0);
 
-  async function refreshData() {
+  // Initial load from cache to prevent flashing "loading..." on fast reloads
+  useEffect(() => {
+    try {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const { data, timestamp } = JSON.parse(cached);
+        // Merge missing fallback symbols just in case
+        const merged = FALLBACK.map(fItem => {
+          const cItem = data.find(c => c.symbol === fItem.symbol);
+          return cItem && cItem.price !== "—" ? cItem : fItem;
+        });
+        setMarketData(merged);
+        setLastUpdated(new Date(timestamp));
+        setStatus((prev) => (prev === "loading" ? "idle" : prev));
+      }
+    } catch (e) {
+      console.warn("Failed to load market cache", e);
+    }
+  }, []);
+
+  const refreshBatch = useCallback(async () => {
     if (isFetching.current) return;
+
+    // Check tab visibility. Don't waste limit when user isn't looking.
+    if (document.hidden) {
+      console.log("Tab inactive. Skipping API fetch to save credits.");
+      return;
+    }
+
     isFetching.current = true;
     setStatus("loading");
 
     try {
-      // Single batch request — all 8 symbols in one call
-      const symbolsParam = SYMBOLS.map((s) => s.key).join(",");
+      const batch = SYMBOLS[batchIndex.current];
+      const symbolsParam = batch.map((s) => s.key).join(",");
       const url = `https://api.twelvedata.com/quote?symbol=${encodeURIComponent(symbolsParam)}&apikey=${API_KEY}`;
 
       const res = await fetch(url);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
 
-      // When batch: data is { "AAPL": {...}, "TSLA": {...}, ... }
-      // When single symbol: data is the quote object directly
-      const updated = SYMBOLS.map((item) => {
-        const quote = data[item.key] ?? (data.symbol === item.key ? data : null);
-        return parseQuote(quote, item.label, item.type) ?? null;
+      setMarketData((prev) => {
+        const newMarketData = [...prev];
+
+        batch.forEach((item) => {
+          const quote = data[item.key] ?? (data.symbol === item.key ? data : null);
+          const parsed = parseQuote(quote, item.label, item.type);
+          if (parsed) {
+            const index = newMarketData.findIndex(m => m.symbol === item.label);
+            if (index !== -1) {
+              newMarketData[index] = parsed;
+            }
+          }
+        });
+
+        // Save new market array to local storage
+        try {
+          localStorage.setItem(CACHE_KEY, JSON.stringify({
+            data: newMarketData,
+            timestamp: Date.now()
+          }));
+        } catch (e) {
+          console.warn("Failed to save market cache", e);
+        }
+
+        return newMarketData;
       });
 
-      setMarketData((prev) => updated.map((item, i) => item ?? prev[i]));
       setLastUpdated(new Date());
       setStatus("idle");
+
+      // Cycle to the next batch for the next run
+      batchIndex.current = (batchIndex.current + 1) % SYMBOLS.length;
     } catch (err) {
       console.error("Fetch error:", err);
+      // Fallback gracefully without throwing
       setStatus("error");
     } finally {
       isFetching.current = false;
     }
-  }
-
-  useEffect(() => {
-    refreshData();
-    const id = setInterval(refreshData, REFRESH_INTERVAL);
-    return () => clearInterval(id);
   }, []);
 
+  useEffect(() => {
+    // Determine if we need to fetch immediately based on cache age
+    let shouldFetchNow = true;
+    try {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const { timestamp } = JSON.parse(cached);
+        const ageMs = Date.now() - timestamp;
+        // If data is newer than half the interval, don't auto-fetch immediately on mount
+        if (ageMs < (REFRESH_INTERVAL / 2)) {
+          shouldFetchNow = false;
+        }
+      }
+    } catch (e) { }
+
+    if (shouldFetchNow) {
+      refreshBatch();
+    }
+
+    const id = setInterval(refreshBatch, REFRESH_INTERVAL);
+
+    const handleVisibilityChange = () => {
+      // Resume or check if we missed a cycle while hidden
+      if (!document.hidden) {
+        try {
+          const cached = localStorage.getItem(CACHE_KEY);
+          if (cached) {
+            const { timestamp } = JSON.parse(cached);
+            if (Date.now() - timestamp >= REFRESH_INTERVAL) {
+              refreshBatch();
+            }
+          } else {
+            refreshBatch();
+          }
+        } catch (e) { }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [refreshBatch]);
+
   const timeString = lastUpdated?.toLocaleTimeString("en-US", {
-    hour:   "2-digit",
+    hour: "2-digit",
     minute: "2-digit",
   });
 
   const typeTag = (type) => {
-    if (type === "forex")  return <span style={{ fontSize: "9px", padding: "1px 5px", borderRadius: "4px", background: "#1e3a5f", color: "#60a5fa", marginRight: "4px", fontWeight: 600, letterSpacing: "0.5px" }}>FX</span>;
+    if (type === "forex") return <span style={{ fontSize: "9px", padding: "1px 5px", borderRadius: "4px", background: "#1e3a5f", color: "#60a5fa", marginRight: "4px", fontWeight: 600, letterSpacing: "0.5px" }}>FX</span>;
     if (type === "crypto") return <span style={{ fontSize: "9px", padding: "1px 5px", borderRadius: "4px", background: "#1a3a2a", color: "#34d399", marginRight: "4px", fontWeight: 600, letterSpacing: "0.5px" }}>CRYPTO</span>;
     return null;
   };
@@ -136,7 +243,7 @@ export default function LiveMarket() {
               <span className="text-red-400">⚠ Could not refresh — showing last known prices</span>
             )}
             {status === "idle" && timeString && (
-              <span className="text-gray-400">
+              <span className="text-gray-400" title="Updates periodically in background to save api usage.">
                 Live Data · Updated {timeString}
               </span>
             )}
@@ -169,7 +276,7 @@ export default function LiveMarket() {
         </div>
 
         <p className="mt-4 text-center text-xs text-gray-500">
-          
+
         </p>
       </div>
 
